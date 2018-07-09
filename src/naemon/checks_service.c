@@ -754,7 +754,7 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 				log_debug_info(DEBUGL_CHECKS, 1, "* Using cached host state: %d\n", temp_host->current_state);
 				update_check_stats(ACTIVE_ONDEMAND_HOST_CHECK_STATS, current_time);
 				update_check_stats(ACTIVE_CACHED_HOST_CHECK_STATS, current_time);
-			} else {
+			} else if (execute_host_checks && (state_change == TRUE && state_changes_use_cached_state == FALSE) && temp_host->last_check + cached_host_check_horizon < current_time) {
 				schedule_next_host_check(temp_host, 0, CHECK_OPTION_DEPENDENCY_CHECK);
 			}
 		}
@@ -764,7 +764,7 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 
 			log_debug_info(DEBUGL_CHECKS, 1, "Host is currently %s.\n", host_state_name(temp_host->current_state));
 
-			if (execute_host_checks) {
+			if (execute_host_checks  && (state_change == TRUE && state_changes_use_cached_state == FALSE)) {
 				schedule_host_check(temp_host, current_time, CHECK_OPTION_NONE);
 			}
 			/* else fake the host check, but (possibly) resend host notifications to contacts... */
